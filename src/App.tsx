@@ -7,6 +7,7 @@ import {
   Key, Layers, ChevronRight, Plus, ChevronDown
 } from 'lucide-react';
 import { User as UserType, Country, Service, Order, SMSMessage, Transaction, Ticket, ApiKey } from './types';
+import ServiceCategorySelector from './components/ServiceCategorySelector';
 
 export default function App() {
   // State variables
@@ -22,6 +23,8 @@ export default function App() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [globalMarkup, setGlobalMarkup] = useState<number>(20);
+  const [pricingMode, setPricingMode] = useState<'percent' | 'fixed_margin'>('fixed_margin');
+  const [fixedProfitAmt, setFixedProfitAmt] = useState<number>(2.00);
   const [providers, setProviders] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<UserType[]>([]);
 
@@ -150,6 +153,8 @@ export default function App() {
       setCountries(data.countries || []);
       setServices(data.services || []);
       setGlobalMarkup(data.markupPercent || 20);
+      setPricingMode(data.pricingMode || 'fixed_margin');
+      setFixedProfitAmt(data.fixedProfitAmt !== undefined ? data.fixedProfitAmt : 2.00);
       if (data.countries?.length > 0) setSelectedCountryId(data.countries[0].id);
       if (data.services?.length > 0) setSelectedServiceId(data.services[0].id);
     } catch (err) {
@@ -216,6 +221,8 @@ export default function App() {
       const data = await optRes.json();
       setProviders(data.providers || []);
       setGlobalMarkup(data.globalMarkup || 20);
+      setPricingMode(data.pricingMode || 'fixed_margin');
+      setFixedProfitAmt(data.fixedProfitAmt !== undefined ? data.fixedProfitAmt : 2.00);
 
       const userRes = await fetch('/api/admin/users');
       const uList = await userRes.json();
@@ -587,6 +594,23 @@ export default function App() {
       });
       if (res.ok) {
         setGlobalMarkup(markupVal);
+        loadBrowseData();
+      }
+    } catch (e) {}
+  };
+
+  // ADMIN ACTION: Change pricing mode & fixed profit margin
+  const handleAdminPricingConfigChange = async (mode: 'percent' | 'fixed_margin', fixedProfit: number) => {
+    try {
+      const res = await fetch('/api/admin/inventory/pricing-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pricingMode: mode, fixedProfitAmt: fixedProfit })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPricingMode(data.pricingMode);
+        setFixedProfitAmt(data.fixedProfitAmt);
         loadBrowseData();
       }
     } catch (e) {}
@@ -1143,7 +1167,27 @@ export default function App() {
               </div>
             )}
 
+            {/* VIRTUNUM CATEGORIZED WORKBENCH */}
+            <div className="mb-12">
+              <span className="text-[10px] uppercase font-black tracking-widest text-[#FACC15] bg-amber-500/10 px-3 py-1.5 rounded-full select-none">
+                ⚙️ CARRIER SUITE PROVISION PANEL
+              </span>
+              <h3 className="text-xl font-bold text-white mt-3.5 mb-1.5">Configure & Provision Rented Lines</h3>
+              <p className="text-zinc-500 text-xs font-semibold mb-6">Explore different virtual numbers for all verification apps safely using our live trunk feeds.</p>
+
+              <ServiceCategorySelector
+                services={services}
+                selectedCountryId={selectedCountryId}
+                countries={countries}
+                onRentService={handleRentSpecificNumber}
+                loading={loading}
+              />
+            </div>
+
             {/* VIRTUAL NUMBER CARDS LIST GRID (Screenshot #2 Presentation) */}
+            <div className="mb-4">
+              <span className="text-[10px] uppercase font-type font-black tracking-widest text-zinc-550 text-zinc-500">🔥 TRUNK PROVISION HIGHLIGHTS</span>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
               {getMockedMarketplaceCards().map((card) => {
                 // If filters match, show them; we provide options to keep them visible for immediate screen likeness
@@ -1284,14 +1328,22 @@ export default function App() {
                           <td className="p-4 font-extrabold text-white">
                             <div className="flex items-center gap-2.5">
                               <div className="h-8 w-8 rounded-lg bg-[#181921] flex items-center justify-center text-[#FACC15] border border-zinc-800">
-                                {svc.name === 'WhatsApp' ? <MessageSquare className="h-4 w-4" /> :
-                                 svc.name === 'Telegram' ? <Send className="h-4 w-4" /> :
-                                 svc.name === 'Google / Gmail' ? <Mail className="h-4 w-4" /> :
-                                 svc.name === 'Tinder' ? <Flame className="h-4 w-4" /> :
-                                 svc.name === 'Uber / Grab' ? <Car className="h-4 w-4" /> :
-                                 svc.name === 'TikTok' ? <Video className="h-4 w-4" /> :
-                                 svc.name === 'ChatGPT / OpenAI' ? <Cpu className="h-4 w-4" /> :
-                                 <Phone className="h-4 w-4" />
+                                {svc.logo === 'MessageSquare' ? <MessageSquare className="h-4 w-4" /> :
+                                 svc.logo === 'Send' ? <Send className="h-4 w-4" /> :
+                                 svc.logo === 'Users' ? <Users className="h-4 w-4" /> :
+                                 svc.logo === 'Phone' ? <Phone className="h-4 w-4" /> :
+                                 svc.logo === 'Terminal' ? <Terminal className="h-4 w-4" /> :
+                                 svc.logo === 'Mail' ? <Mail className="h-4 w-4" /> :
+                                 svc.logo === 'Cpu' ? <Cpu className="h-4 w-4" /> :
+                                 svc.logo === 'Sparkles' ? <Sparkles className="h-4 w-4" /> :
+                                 svc.logo === 'Flame' ? <Flame className="h-4 w-4" /> :
+                                 svc.logo === 'Car' ? <Car className="h-4 w-4" /> :
+                                 svc.logo === 'Video' ? <Video className="h-4 w-4" /> :
+                                 svc.logo === 'DollarSign' ? <DollarSign className="h-4 w-4" /> :
+                                 svc.logo === 'Wallet' ? <Wallet className="h-4 w-4" /> :
+                                 svc.logo === 'Activity' ? <Activity className="h-4 w-4" /> :
+                                 svc.logo === 'Globe' ? <Globe className="h-4 w-4" /> :
+                                 <Layers className="h-4 w-4" />
                                 }
                               </div>
                               {svc.name}
@@ -2298,8 +2350,10 @@ export default function App() {
               </div>
 
               <div className="bg-[#121317] border border-zinc-800 p-4.5 rounded-2xl">
-                <span className="text-[10px] uppercase font-black text-zinc-500 tracking-wider font-mono">Global Markup Margin</span>
-                <p className="text-2xl font-black text-[#FACC15] mt-1">{globalMarkup}% Price Lift</p>
+                <span className="text-[10px] uppercase font-black text-zinc-500 tracking-wider font-mono">Dynamic Margin Rule</span>
+                <p className="text-xl font-black text-[#FACC15] mt-1.5 animate-pulse">
+                  {pricingMode === 'fixed_margin' ? `+$${fixedProfitAmt.toFixed(2)} Profit` : `${globalMarkup}% Markup`}
+                </p>
               </div>
 
               <div className="bg-[#121317] border border-zinc-800 p-4.5 rounded-2xl">
@@ -2317,26 +2371,89 @@ export default function App() {
               
               <div className="lg:col-span-1 space-y-6">
                 {/* ADJUSTER CARD */}
-                <div className="bg-[#121317] border border-zinc-800 p-6 rounded-3xl">
-                  <h4 className="text-white font-extrabold text-xs uppercase tracking-wider mb-2 font-mono">Markup Price Multiplier</h4>
-                  <p className="text-[10.5px] text-zinc-500 leading-normal mb-4 font-semibold">Toggles global markup multiplier percentage live in the checkout index. Present: <b className="text-[#FACC15]">{globalMarkup}%</b></p>
-                  
-                  <div className="space-y-3">
-                    <input 
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={globalMarkup}
-                      onChange={(e) => handleAdminMarkupChange(parseInt(e.target.value))}
-                      className="w-full h-1.5 bg-[#1C1D24] rounded-lg appearance-none cursor-pointer accent-amber-400"
-                    />
-                    <div className="flex justify-between text-[9px] font-mono text-zinc-500 font-bold">
-                      <span>0% (Cost price)</span>
-                      <span>50%</span>
-                      <span>100% (Double)</span>
-                    </div>
+                <div className="bg-[#121317] border border-zinc-800 p-6 rounded-3xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-white font-extrabold text-xs uppercase tracking-wider font-mono">💰 Carrier Margin Engine</h4>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#FACC15] px-2 py-0.5 rounded-full bg-amber-400/10 font-mono">
+                      {pricingMode === 'fixed_margin' ? 'Fixed Margin' : 'Percentage'}
+                    </span>
                   </div>
+                  <p className="text-[10.5px] text-zinc-400 leading-normal font-semibold">
+                    Set up your Twilio virtual lines margin rules. Twilio offers high-success failovers with real-time trunk provisioning.
+                  </p>
+
+                  {/* Mode Switches */}
+                  <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#1C1D24] rounded-xl border border-zinc-900/60 font-semibold text-[10px]">
+                    <button
+                      onClick={() => handleAdminPricingConfigChange('fixed_margin', fixedProfitAmt)}
+                      className={`py-1.5 rounded-lg text-center uppercase tracking-wider transition-all cursor-pointer ${
+                        pricingMode === 'fixed_margin'
+                          ? 'bg-[#FACC15] text-slate-950 font-black'
+                          : 'text-zinc-500 hover:text-white'
+                      }`}
+                    >
+                      Fixed Profit
+                    </button>
+                    <button
+                      onClick={() => handleAdminPricingConfigChange('percent', fixedProfitAmt)}
+                      className={`py-1.5 rounded-lg text-center uppercase tracking-wider transition-all cursor-pointer ${
+                        pricingMode === 'percent'
+                          ? 'bg-[#FACC15] text-slate-950 font-black'
+                          : 'text-zinc-500 hover:text-white'
+                      }`}
+                    >
+                      Percent Lift
+                    </button>
+                  </div>
+
+                  {pricingMode === 'fixed_margin' ? (
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-[11px] font-bold text-white font-mono">
+                        <span>Fixed Profit Per Trade:</span>
+                        <span className="font-mono text-[#FACC15] text-sm font-black">${fixedProfitAmt.toFixed(2)}</span>
+                      </div>
+                      
+                      <input 
+                        type="range"
+                        min="0.5"
+                        max="5.0"
+                        step="0.1"
+                        value={fixedProfitAmt}
+                        onChange={(e) => handleAdminPricingConfigChange('fixed_margin', parseFloat(e.target.value))}
+                        className="w-full h-1.5 bg-[#1C1D24] rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      />
+                      <div className="flex justify-between text-[9px] font-mono text-zinc-500 font-bold">
+                        <span>+$0.50</span>
+                        <span>+$2.00 (Target)</span>
+                        <span>+$5.00 Limit</span>
+                      </div>
+                      <p className="text-[9.5px] font-semibold text-emerald-400 leading-normal">
+                        ⚡ Fixed profit lock active! App charges standard carriage cost and locks exactly **${fixedProfitAmt.toFixed(2)}** profit on all virtual SMS routes.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-[11px] font-bold text-white">
+                        <span>Markup Price Multiplier:</span>
+                        <span className="font-mono text-[#FACC15]">{globalMarkup}%</span>
+                      </div>
+                      
+                      <input 
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={globalMarkup}
+                        onChange={(e) => handleAdminMarkupChange(parseInt(e.target.value))}
+                        className="w-full h-1.5 bg-[#1C1D24] rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      />
+                      <div className="flex justify-between text-[9px] font-mono text-zinc-500 font-bold">
+                        <span>0% (Cost price)</span>
+                        <span>50%</span>
+                        <span>100% (Double)</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* HARDWARE TRUNKS */}

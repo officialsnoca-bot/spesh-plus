@@ -34,22 +34,54 @@ const initialCountries: Country[] = [
 
 // Initial service list
 const initialServices: Service[] = [
-  { id: 's1', name: 'WhatsApp', logo: 'MessageSquare', defaultPrice: 1.5 },
-  { id: 's2', name: 'Telegram', logo: 'Send', defaultPrice: 1.2 },
-  { id: 's3', name: 'Google / Gmail', logo: 'Mail', defaultPrice: 0.8 },
-  { id: 's4', name: 'Facebook', logo: 'Facebook', defaultPrice: 0.7 },
-  { id: 's5', name: 'Instagram', logo: 'Instagram', defaultPrice: 0.65 },
-  { id: 's6', name: 'TikTok', logo: 'Video', defaultPrice: 0.9 },
-  { id: 's7', name: 'ChatGPT / OpenAI', logo: 'Cpu', defaultPrice: 2.2 },
-  { id: 's8', name: 'Tinder', logo: 'Flame', defaultPrice: 1.1 },
-  { id: 's9', name: 'Uber / Grab', logo: 'Car', defaultPrice: 0.5 },
+  // Messengers
+  { id: 's1', name: 'WhatsApp', logo: 'MessageSquare', defaultPrice: 1.5, category: 'Messengers' },
+  { id: 's2', name: 'Telegram', logo: 'Send', defaultPrice: 1.2, category: 'Messengers' },
+  { id: 's10', name: 'Discord', logo: 'Users', defaultPrice: 0.9, category: 'Messengers' },
+  { id: 's11', name: 'Viber', logo: 'Phone', defaultPrice: 0.8, category: 'Messengers' },
+  { id: 's12', name: 'WeChat', logo: 'MessageSquare', defaultPrice: 1.7, category: 'Messengers' },
+  { id: 's13', name: 'Snapchat', logo: 'Smartphone', defaultPrice: 1.0, category: 'Messengers' },
+
+  // Social Networks
+  { id: 's4', name: 'Facebook', logo: 'Facebook', defaultPrice: 0.7, category: 'Social Networks' },
+  { id: 's5', name: 'Instagram', logo: 'Instagram', defaultPrice: 0.65, category: 'Social Networks' },
+  { id: 's6', name: 'TikTok', logo: 'Video', defaultPrice: 0.9, category: 'Social Networks' },
+  { id: 's14', name: 'Twitter / X', logo: 'Layers', defaultPrice: 0.85, category: 'Social Networks' },
+  { id: 's15', name: 'LinkedIn', logo: 'Users', defaultPrice: 1.3, category: 'Social Networks' },
+  { id: 's16', name: 'Reddit', logo: 'Globe', defaultPrice: 0.6, category: 'Social Networks' },
+
+  // AI & Tech Tools
+  { id: 's7', name: 'ChatGPT / OpenAI', logo: 'Cpu', defaultPrice: 2.2, category: 'AI & Developer' },
+  { id: 's17', name: 'Claude AI', logo: 'Sparkles', defaultPrice: 2.0, category: 'AI & Developer' },
+  { id: 's3', name: 'Google / Gmail', logo: 'Mail', defaultPrice: 0.8, category: 'AI & Developer' },
+  { id: 's18', name: 'Microsoft / Outlook', logo: 'Mail', defaultPrice: 0.75, category: 'AI & Developer' },
+  { id: 's19', name: 'GitHub', logo: 'Terminal', defaultPrice: 0.95, category: 'AI & Developer' },
+
+  // Payments & Finance
+  { id: 's20', name: 'PayPal', logo: 'DollarSign', defaultPrice: 2.5, category: 'Payments & Finance' },
+  { id: 's21', name: 'Stripe', logo: 'CreditCard', defaultPrice: 2.4, category: 'Payments & Finance' },
+  { id: 's22', name: 'Revolut', logo: 'Wallet', defaultPrice: 2.3, category: 'Payments & Finance' },
+  { id: 's23', name: 'Binance', logo: 'Activity', defaultPrice: 1.9, category: 'Payments & Finance' },
+  { id: 's24', name: 'Coinbase', logo: 'Activity', defaultPrice: 1.8, category: 'Payments & Finance' },
+
+  // Food & Ride-sharing
+  { id: 's9', name: 'Uber / Grab', logo: 'Car', defaultPrice: 0.5, category: 'Food & Ride-sharing' },
+  { id: 's25', name: 'Lyft', logo: 'Car', defaultPrice: 0.6, category: 'Food & Ride-sharing' },
+  { id: 's26', name: 'Bolt', logo: 'Car', defaultPrice: 0.55, category: 'Food & Ride-sharing' },
+  { id: 's27', name: 'DoorDash', logo: 'Car', defaultPrice: 0.7, category: 'Food & Ride-sharing' },
+
+  // Entertainment & Fun
+  { id: 's8', name: 'Tinder', logo: 'Flame', defaultPrice: 1.1, category: 'Entertainment & Fun' },
+  { id: 's28', name: 'Netflix', logo: 'Video', defaultPrice: 1.4, category: 'Entertainment & Fun' },
+  { id: 's29', name: 'Spotify', logo: 'Music', defaultPrice: 0.8, category: 'Entertainment & Fun' },
+  { id: 's30', name: 'Steam', logo: 'Layers', defaultPrice: 0.95, category: 'Entertainment & Fun' },
 ];
 
 // Initial provider list
 const initialProviders: Provider[] = [
-  { id: 'p1', name: '5Sim', apiKey: '5sim_sec_prod_8231', balance: 450.80, priority: 1, active: true },
-  { id: 'p2', name: 'SMS-Activate', apiKey: 'smsact_sec_prod_9091', balance: 290.40, priority: 2, active: true },
-  { id: 'p3', name: 'Twilio API', apiKey: 'twilio_sid_test_12a0', balance: 150.00, priority: 3, active: false },
+  { id: 'p1', name: '5Sim', apiKey: '5sim_sec_prod_8231', balance: 450.80, priority: 2, active: true },
+  { id: 'p2', name: 'SMS-Activate', apiKey: 'smsact_sec_prod_9091', balance: 290.40, priority: 3, active: true },
+  { id: 'p3', name: 'Twilio API', apiKey: 'twilio_sid_test_12a0', balance: 150.00, priority: 1, active: true },
   { id: 'p4', name: 'Plivo Bulk', apiKey: 'plivo_auth_test_992e', balance: 75.50, priority: 4, active: true },
 ];
 
@@ -65,6 +97,8 @@ export interface DBState {
   tickets: Ticket[];
   apiKeys: ApiKey[];
   markupPercent: number; // Global markup percentage managed by Admin
+  pricingMode: 'percent' | 'fixed_margin';
+  fixedProfitAmt: number;
 }
 
 const defaultState = (): DBState => {
@@ -247,6 +281,8 @@ const defaultState = (): DBState => {
     tickets,
     apiKeys,
     markupPercent: 20, // default 20%
+    pricingMode: 'fixed_margin',
+    fixedProfitAmt: 2.0,
   };
 };
 
@@ -260,6 +296,47 @@ export function getDB(): DBState {
       const parsed = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
       // Basic schema health check
       if (parsed.users && parsed.countries && parsed.numbers) {
+        if (parsed.pricingMode === undefined) {
+          parsed.pricingMode = 'fixed_margin';
+        }
+        if (parsed.fixedProfitAmt === undefined) {
+          parsed.fixedProfitAmt = 2.0;
+        }
+        // Migration: Ensure all initial services are present in retrieved DB
+        if (!parsed.services || parsed.services.length < initialServices.length) {
+          parsed.services = initialServices;
+          // Regenerate numbers for new services
+          const providersKeys: ('5Sim' | 'SMS-Activate' | 'Twilio' | 'Plivo')[] = ['5Sim', 'SMS-Activate', 'Twilio', 'Plivo'];
+          let maxNumId = Math.max(...parsed.numbers.map((n: any) => parseInt(n.id.replace('num_', '')) || 0), 1) + 1;
+          parsed.countries.forEach((c : any) => {
+            initialServices.forEach((s) => {
+              if (!parsed.numbers.some((n: any) => n.serviceId === s.id && n.countryId === c.id)) {
+                const randomBase = Math.floor(Math.random() * 9000000) + 1000000;
+                const ccCode = c.code === 'US' ? '1' : c.code === 'GB' ? '44' : c.code === 'EE' ? '372' : c.code === 'UA' ? '380' : c.code === 'DE' ? '49' : '55';
+                parsed.numbers.push({
+                  id: `num_${maxNumId++}`,
+                  phone: `+${ccCode}${randomBase}`,
+                  countryId: c.id,
+                  provider: providersKeys[Math.floor(Math.random() * providersKeys.length)],
+                  serviceId: s.id,
+                  status: 'available',
+                  price: Number((s.defaultPrice * 1.15).toFixed(2)),
+                  type: 'one-time'
+                });
+                parsed.numbers.push({
+                  id: `num_${maxNumId++}`,
+                  phone: `+${ccCode}${randomBase + 215}`,
+                  countryId: c.id,
+                  provider: providersKeys[Math.floor(Math.random() * providersKeys.length)],
+                  serviceId: s.id,
+                  status: 'available',
+                  price: Number((s.defaultPrice * 4.5).toFixed(2)),
+                  type: 'long-term'
+                });
+              }
+            });
+          });
+        }
         dbCache = parsed;
         return dbCache!;
       }

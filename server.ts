@@ -179,10 +179,15 @@ app.post('/api/wallet/topup', (req, res) => {
 // 3. NUMBERS BROWSE
 app.get('/api/numbers/browse', (req, res) => {
   // Return all countries, services, and dynamic calculated inventory rates
-  // Standard prices are multiplied by markup percentage
+  // Support either custom markup percentage or a fixed flat margin of $2.00
   const globalMarkup = db.markupPercent;
+  const pricingMode = db.pricingMode || 'fixed_margin';
+  const fixedProfitAmt = db.fixedProfitAmt !== undefined ? db.fixedProfitAmt : 2.00;
+
   const clientServices = db.services.map((s) => {
-    const markupPrice = Number((s.defaultPrice * (1 + globalMarkup / 100)).toFixed(2));
+    const markupPrice = pricingMode === 'fixed_margin' 
+      ? Number((s.defaultPrice + fixedProfitAmt).toFixed(2))
+      : Number((s.defaultPrice * (1 + globalMarkup / 100)).toFixed(2));
     return {
       ...s,
       price: markupPrice,
@@ -195,7 +200,9 @@ app.get('/api/numbers/browse', (req, res) => {
     countries: db.countries,
     services: clientServices,
     numbersCount: db.numbers.filter(n => n.status === 'available').length,
-    markupPercent: db.markupPercent
+    markupPercent: db.markupPercent,
+    pricingMode,
+    fixedProfitAmt
   });
 });
 
@@ -218,7 +225,12 @@ app.post('/api/numbers/rent', (req, res) => {
   const isLongTerm = type === 'long-term';
   const duration = durationDays ? parseInt(durationDays) : 0;
   const baseCost = isLongTerm ? service.defaultPrice * 3 * (duration || 7) : service.defaultPrice;
-  const markupPrice = Number((baseCost * (1 + db.markupPercent / 100)).toFixed(2));
+  
+  const pricingMode = db.pricingMode || 'fixed_margin';
+  const fixedProfitAmt = db.fixedProfitAmt !== undefined ? db.fixedProfitAmt : 2.00;
+  const markupPrice = pricingMode === 'fixed_margin'
+    ? Number((baseCost + fixedProfitAmt).toFixed(2))
+    : Number((baseCost * (1 + db.markupPercent / 100)).toFixed(2));
 
   if (user.balance < markupPrice) {
     return res.status(400).json({ error: 'Insufficient balance. Please top-up your wallet' });
@@ -572,7 +584,28 @@ app.get('/api/admin/overview', (req, res) => {
     },
     providers: db.providers,
     recentTransactions: db.transactions.slice(-8).reverse(),
-    globalMarkup: db.markupPercent
+    globalMarkup: db.markupPercent,
+    pricingMode: db.pricingMode || 'fixed_margin',
+    fixedProfitAmt: db.fixedProfitAmt !== undefined ? db.fixedProfitAmt : 2.00
+  });
+});
+
+app.post('/api/admin/inventory/pricing-config', (req, res) => {
+  const { pricingMode, fixedProfitAmt } = req.body;
+  if (pricingMode === 'percent' || pricingMode === 'fixed_margin') {
+    db.pricingMode = pricingMode;
+  }
+  if (fixedProfitAmt !== undefined) {
+    const amt = parseFloat(fixedProfitAmt);
+    if (!isNaN(amt) && amt >= 0) {
+      db.fixedProfitAmt = amt;
+    }
+  }
+  saveDB();
+  res.json({
+    pricingMode: db.pricingMode,
+    fixedProfitAmt: db.fixedProfitAmt,
+    markupPercent: db.markupPercent
   });
 });
 

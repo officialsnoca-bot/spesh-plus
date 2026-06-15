@@ -42,6 +42,7 @@ export interface Service {
   name: string;
   logo: string; // name of representative lucide icon or generic string
   defaultPrice: number;
+  category?: string;
 }
 
 export interface VirtualNumber {
